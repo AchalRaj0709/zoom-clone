@@ -17,6 +17,9 @@ export default function ScheduleMeeting() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Computed minimum date (today) to prevent scheduling in the past
+  const [minDate, setMinDate] = useState("");
+
   // Set default date and time (today, and next hour) on load
   useEffect(() => {
     const today = new Date();
@@ -25,7 +28,9 @@ export default function ScheduleMeeting() {
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
-    setDate(`${yyyy}-${mm}-${dd}`);
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+    setDate(todayStr);
+    setMinDate(todayStr);
 
     // Round up to next hour
     const hh = String((today.getHours() + 1) % 24).padStart(2, '0');
@@ -156,6 +161,7 @@ export default function ScheduleMeeting() {
                   id="date"
                   type="date"
                   required
+                  min={minDate}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   className="border border-gray-200 focus:border-zoom-blue focus:ring-2 focus:ring-blue-100 rounded-xl px-4 py-2.5 outline-none text-sm transition-all bg-gray-50/30 font-medium text-gray-700"

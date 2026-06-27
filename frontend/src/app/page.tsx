@@ -8,8 +8,6 @@ import {
   Calendar, 
   MonitorUp, 
   Search, 
-  Clock, 
-  ArrowRight,
   Play, 
   History, 
   CalendarDays,
@@ -40,6 +38,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Check if redirect contains scheduled query param to show toast
   useEffect(() => {
@@ -90,8 +89,10 @@ export default function Home() {
           const recData = await recRes.json();
           setRecentMeetings(recData);
         }
+        setFetchError(null);
       } catch (err) {
         console.error("Error fetching meetings:", err);
+        setFetchError("Could not load meetings — is the backend running on port 8000?");
       } finally {
         setLoading(false);
       }
@@ -167,6 +168,14 @@ export default function Home() {
       </header>
 
       {/* Main Container */}
+      {fetchError && (
+        <div className="max-w-7xl w-full mx-auto px-6 md:px-8 pt-4">
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 text-sm text-red-700 font-medium">
+            <span className="text-red-500 text-lg">⚠</span>
+            <span>{fetchError}</span>
+          </div>
+        </div>
+      )}
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Actions & Recent Meetings */}
         <div className="lg:col-span-5 flex flex-col gap-8">

@@ -10,7 +10,7 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     avatar_url = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     # Relationships
     meetings = relationship("Meeting", back_populates="host")
@@ -27,7 +27,7 @@ class Meeting(Base):
     scheduled_at = Column(DateTime, nullable=True)
     duration_minutes = Column(Integer, default=60)
     status = Column(String, default="scheduled")  # "scheduled", "active", "ended"
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     # Relationships
     host = relationship("User", back_populates="meetings")
@@ -40,7 +40,7 @@ class Participant(Base):
     meeting_id = Column(Integer, ForeignKey("meetings.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     display_name = Column(String, nullable=False)
-    joined_at = Column(DateTime, default=datetime.datetime.utcnow)
+    joined_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     # Relationships
     meeting = relationship("Meeting", back_populates="participants")

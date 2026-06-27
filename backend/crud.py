@@ -87,11 +87,13 @@ def join_meeting(db: Session, meeting_id_str: str, display_name: str, user_id: O
     if not meeting:
         return None
     
-    # Check if participant already exists in the meeting
-    existing_participant = db.query(models.Participant).filter(
-        models.Participant.meeting_id == meeting.id,
-        models.Participant.display_name == display_name
-    ).first()
+    # Check if participant already exists in the meeting (deduplicate only by user_id if present)
+    existing_participant = None
+    if user_id is not None:
+        existing_participant = db.query(models.Participant).filter(
+            models.Participant.meeting_id == meeting.id,
+            models.Participant.user_id == user_id
+        ).first()
     
     if not existing_participant:
         db_participant = models.Participant(

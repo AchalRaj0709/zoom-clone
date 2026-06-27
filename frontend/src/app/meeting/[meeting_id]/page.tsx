@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import {
   Mic,
@@ -15,9 +15,7 @@ import {
   ChevronLeft,
   Volume2,
   Tv,
-  ArrowRight,
   TrendingUp,
-  UserCheck
 } from "lucide-react";
 
 interface Participant {
@@ -59,9 +57,7 @@ export default function MeetingRoom() {
   
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
-
-  // Ref for polling interval
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const [originUrl, setOriginUrl] = useState("");
 
   // Get Initials for Avatar
   const getInitials = (name: string) => {
@@ -91,40 +87,51 @@ export default function MeetingRoom() {
     return colors[sum % colors.length];
   };
 
-  // Fetch Meeting Details & Participants list
-  const fetchMeetingDetails = async (showLoading = false) => {
-    if (showLoading) setLoading(true);
-    try {
-      const res = await fetch(`/api/meetings/${meetingId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setMeeting(data);
-        setError(null);
-      } else {
-        if (res.status === 404) {
-          setError("Meeting room not found.");
-        } else {
-          setError("An error occurred fetching meeting details.");
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Network error. Checking connection...");
-    } finally {
-      if (showLoading) setLoading(false);
-    }
-  };
-
-  // Start polling on mount
+  // Fetch Meeting Details & Participants list with AbortController for safe cleanup
   useEffect(() => {
+    // Set origin URL safely (only available in browser)
+    if (typeof window !== "undefined") {
+      setOriginUrl(window.location.origin);
+    }
+
+    let isCancelled = false;
+    const controller = new AbortController();
+
+    const fetchMeetingDetails = async (showLoading = false) => {
+      if (showLoading) setLoading(true);
+      try {
+        const res = await fetch(`/api/meetings/${meetingId}`, { signal: controller.signal });
+        if (isCancelled) return;
+        if (res.ok) {
+          const data = await res.json();
+          setMeeting(data);
+          setError(null);
+        } else {
+          if (res.status === 404) {
+            setError("Meeting room not found.");
+          } else {
+            setError("An error occurred fetching meeting details.");
+          }
+        }
+      } catch (err: unknown) {
+        if (isCancelled || (err instanceof DOMException && err.name === "AbortError")) return;
+        console.error(err);
+        setError("Network error. Checking connection...");
+      } finally {
+        if (showLoading && !isCancelled) setLoading(false);
+      }
+    };
+
     fetchMeetingDetails(true);
     // Poll every 3 seconds for new participants
-    pollingRef.current = setInterval(() => {
+    const intervalId = setInterval(() => {
       fetchMeetingDetails(false);
     }, 3000);
 
     return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current);
+      isCancelled = true;
+      controller.abort();
+      clearInterval(intervalId);
     };
   }, [meetingId]);
 
@@ -142,9 +149,9 @@ export default function MeetingRoom() {
     }
   };
 
-  // Copy helpers
+  // Copy helpers — use originUrl state instead of direct window access
   const handleCopyLink = () => {
-    const fullLink = `${window.location.origin}/join/${meetingId}`;
+    const fullLink = `${originUrl}/join/${meetingId}`;
     navigator.clipboard.writeText(fullLink);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
@@ -222,7 +229,7 @@ export default function MeetingRoom() {
         {/* Copy Invite Link Widget */}
         <div className="flex items-center gap-2">
           <span className="hidden md:inline text-xs text-gray-400 font-medium truncate max-w-xs">
-            Link: {window.location.origin}/join/{meetingId}
+            {originUrl ? `Link: ${originUrl}/join/${meetingId}` : `Link: /join/${meetingId}`}
           </span>
           <button
             onClick={handleCopyLink}
