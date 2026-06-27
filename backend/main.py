@@ -150,3 +150,15 @@ def join_meeting(meeting_id: str, participant: schemas.ParticipantJoin, db: Sess
     if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
     return meeting
+
+@app.post("/api/meetings/{meeting_id}/end", response_model=schemas.Meeting)
+def end_meeting(meeting_id: str, db: Session = Depends(get_db)):
+    """End a meeting (set status to ended)"""
+    meeting = crud.get_meeting_by_meeting_id(db, meeting_id)
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    meeting.status = "ended"
+    db.commit()
+    db.refresh(meeting)
+    return meeting
+

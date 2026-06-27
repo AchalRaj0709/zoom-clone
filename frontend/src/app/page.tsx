@@ -39,6 +39,23 @@ export default function Home() {
   const [currentDate, setCurrentDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState(false);
+
+  // Check if redirect contains scheduled query param to show toast
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("scheduled") === "true") {
+        setShowToast(true);
+        // Clean the URL parameter
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+        // Auto hide after 4 seconds
+        const timer = setTimeout(() => setShowToast(false), 4000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, []);
 
   // Live Digital Clock
   useEffect(() => {
@@ -344,6 +361,25 @@ export default function Home() {
 
         </div>
       </main>
+
+      {/* Floating Success Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-6 right-6 bg-gray-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-gray-800 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-green-500 p-1.5 rounded-full text-white">
+            <Check className="w-4 h-4 stroke-[3]" />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-semibold text-sm">Meeting scheduled!</span>
+            <span className="text-xs text-gray-400">It is now listed in your upcoming meetings.</span>
+          </div>
+          <button 
+            onClick={() => setShowToast(false)} 
+            className="text-gray-400 hover:text-white text-xs font-bold pl-2 select-none"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
     </div>
   );
 }
