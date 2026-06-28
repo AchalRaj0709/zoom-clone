@@ -299,7 +299,7 @@ export default function MeetingRoom() {
                 </div>
 
                 <div className="flex items-center justify-between z-10">
-                  <span className="text-sm font-semibold text-white/80">Achal Raj's Presenting Workspace</span>
+                  <span className="text-sm font-semibold text-white/80">{"Achal Raj's Presenting Workspace"}</span>
                   <span className="text-xs text-white/40">You are visible to all attendees</span>
                 </div>
               </div>
