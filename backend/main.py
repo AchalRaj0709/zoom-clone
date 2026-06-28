@@ -10,8 +10,8 @@ from . import models, schemas, crud
 
 app = FastAPI(title="Zoom Clone API")
 
-# Configure CORS dynamically from environment variables
-origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+# Configure CORS dynamically from environment variables (strip whitespace and trailing slashes)
+origins = [origin.strip().rstrip("/") for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

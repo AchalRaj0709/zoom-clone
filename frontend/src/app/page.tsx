@@ -259,7 +259,7 @@ export default function Home() {
                     <div className="flex-1 min-w-0 pr-3">
                       <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">{meeting.title}</h3>
                       <p className="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
-                        <span>{formatMeetingTime(meeting.created_at)}</span>
+                        <span suppressHydrationWarning>{formatMeetingTime(meeting.created_at)}</span>
                         <span className="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
                         <span>{meeting.duration_minutes} mins</span>
                       </p>
@@ -329,7 +329,7 @@ export default function Home() {
                       )}
                       
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-2.5 text-xs text-gray-500">
-                        <span className="font-semibold text-zoom-blue bg-blue-50 px-2 py-0.5 rounded">
+                        <span suppressHydrationWarning className="font-semibold text-zoom-blue bg-blue-50 px-2 py-0.5 rounded">
                           {formatMeetingTime(meeting.scheduled_at)}
                         </span>
                         <span className="text-gray-300">|</span>
