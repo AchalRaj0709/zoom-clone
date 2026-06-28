@@ -4,8 +4,8 @@ A fully functional, pixel-perfect web clone of the Zoom desktop and meeting room
 
 ## Deployed Links
 
-- **Frontend Deployed URL**: [DEPLOYED_FRONTEND_URL]
-- **Backend Deployed URL**: [DEPLOYED_BACKEND_URL]
+- **Frontend Deployed URL**: https://zoom-clone-puce-rho.vercel.app/
+- **Backend Deployed URL**: https://zoom-clone-ysbq.onrender.com
 
 ---
 
